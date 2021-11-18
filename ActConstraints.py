@@ -7,6 +7,7 @@ Created on Tue Jul 13 11:29:52 2021
 import numpy as np
 import tarjan
 import random
+from scipy.sparse.csgraph import johnson
 
 MaxSearchPerIteration = 10000
 
@@ -115,15 +116,30 @@ class Constraints(ReadInfo):
     def __init__(self, filename):
         super().__init__(filename)
         self.info() # read the infos into the class
+        self.initNonrenewable_resource = np.copy(self.Nonrenewable_resource)
+        self.initRenewable_resource = np.copy(self.Renewable_resource)
 
-    def UpdateRenewableResource(self, currentTimes):
-        pass
+    def resetResource(self):
+        self.Nonrenewable_resource = np.copy(self.initNonrenewable_resource)
+        self.Renewable_resource = np.copy(self.initRenewable_resource)
 
-    def JudgeFeasibility(self,graph) -> object:
+    def JudgeFeasibility(self, graph, act0, mode0) -> object:
         # assert actSeq.shape == modeSeq.shape[1]
         # graph = self.buildGraph(modeSeq, actSeq)
-        M = self.ShortestPath(graph)
-        isvalid = self.Isvalid(M)
+        graph[graph == 0] = -50000
+        if graph.shape[0] == 1:
+            tempM = np.ones(len(self.activities)) * (-5000)
+            for activity in self.activities:
+                temp = self.SsLimit[activity]  # dict
+                if str(act0) in list(temp.keys()):
+                    tempM[int(activity)] = temp[str(act0)][:, int(mode0) - 1].min().item()
+            if (tempM > 0).any():
+                isvalid = False
+            else:
+                isvalid = True
+        else:
+            M = self.ShortestPath(graph)
+            isvalid = self.Isvalid(M)
         return isvalid
 
     def get_activity_least_time(self):
@@ -204,15 +220,30 @@ class Constraints(ReadInfo):
     #             return False
     #     return True
 
-    def Is_Renewable_Resource_Feasible(self, currentMode, currentAct, currentTime):
+    def Is_Renewable_Resource_Feasible(self, modeSeq, actSeq, timeSeq, crtTime):
         # 判断给定的模式向量及各个模式开始时间是否满足可更新资源限制
-        # give current mode and activity, determine whether satisfy the renewable resource constraints
-        current_duration = self.get_current_duration(currentMode, currentAct)
+        # give sequence of mode and activity, determine whether satisfy the renewable resource constraints
+        assert len(timeSeq) + 1 == len(modeSeq) == len(actSeq)
+        if (crtTime < np.array(timeSeq)).any():
+            return False
+        pastModeSeq = np.array(modeSeq[:-1], dtype = np.int)
+        pastActSeq = np.array(actSeq[:-1], dtype = np.int)
+        currentMode = modeSeq[-1]
+        currentAct = actSeq[-1]
+        durSeq = []
+        for mode, act in zip(pastModeSeq, pastActSeq):
+            durSeq.append(self.get_current_duration(mode, act))
+        maskfinished = np.array(timeSeq) + np.array(durSeq) <= crtTime
+        unfinishedActs = pastActSeq[~maskfinished]
+        unfinishedModes = pastModeSeq[~maskfinished]
+        renewR = np.zeros_like(self.Renewable_resource)
+        for mode, act in zip(unfinishedModes, unfinishedActs):
+            renewR += self.get_current_mode_using_renewable_resource(mode, act)
+        AvaRenewR = self.Renewable_resource - renewR
         current_mode_using_renewable_resource = self.get_current_mode_using_renewable_resource(currentMode, currentAct)
-        endTime = currentTime + current_duration
-        if (current_mode_using_renewable_resource <= self.Renewable_resource).all():
-            self.Renewable_resource -= current_mode_using_renewable_resource
-            # update resource
+
+        # endTime = crtTime + current_duration
+        if (current_mode_using_renewable_resource <= AvaRenewR).all():
             return True
         return False
 
@@ -220,7 +251,7 @@ class Constraints(ReadInfo):
         # 判断给定的模式Activity是否满足不可更新资源限制
         current_mode_using_nonrenewable_resource = self.get_current_mode_using_nonrenewable_resource(currentMode, currentAct)
         if (current_mode_using_nonrenewable_resource <= self.Nonrenewable_resource).all():
-            self.Renewable_resource -= current_mode_using_nonrenewable_resource
+            self.Nonrenewable_resource -= current_mode_using_nonrenewable_resource
             return True
         return False
 
@@ -242,21 +273,28 @@ class Constraints(ReadInfo):
 
     def Isvalid(self, M):
         # 判断sslimit矩阵中是否存在正环，输入为ShortestPath函数输出的M矩阵
-        for i in range(M.shape[0]):
-            if M[i, i] > 0:
-                return False
+        if isinstance(M, bool):
+            return M
+        else:
+            for i in range(M.shape[0]):
+                if M[i, i] > 0:
+                    return False
         return True
 
     def ShortestPath(self, graph):
         # 计算sslimit中，各个活动之间的最短距离，输入为buildGraph函数输出的sslimit矩阵
         # 输出矩阵M[i,j]代表第i个活动到第j个活动的最短距离
-        M = graph.copy()
-        n = graph.shape[0]
-        for k in range(n):
-            for i in range(n):
-                for j in range(n):
-                    M[i, j] = max(M[i, j], M[i, k] + M[k, j])
-        return M
+        # M = graph.copy()
+        try:
+            dist_matrix = johnson(graph)
+        except:
+            n = graph.shape[0]
+            dist_matrix = graph.copy()
+            for k in range(n):
+                for i in range(n):
+                    for j in range(n):
+                        dist_matrix[i, j] = max(dist_matrix[i, j], dist_matrix[i, k] + dist_matrix[k, j])
+        return dist_matrix
 
     def decodeTimeSequece(self, time_chromosome, M, d_ba):
         # 根据最短距离矩阵，进行时间序列解码，设置最后一个序列的最晚开始时间为2*（整个项目的最短时间）

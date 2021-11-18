@@ -83,12 +83,11 @@ class MLPCritic(nn.Module):
                 self.linears.append(nn.Linear(hidden_dim, hidden_dim))
             self.linears.append(nn.Linear(hidden_dim, output_dim))
 
-
     def forward(self, x):
         if self.linear_or_not:
             return self.linear(x)
         else:
             h = x
             for layer in range(self.num_layers - 1):
-                h = torch.tanh(self.linears[layer](h))
+                h = torch.tanh(self.linears[layer](h))#nn.functional.prelu(self.linears[layer](h), weight=torch.tensor([0.1]))
             return self.linears[self.num_layers - 1](h)

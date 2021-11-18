@@ -22,7 +22,7 @@ class GraphCNN(nn.Module):
         self.learn_eps = learn_eps
         self.mlps = torch.nn.ModuleList()
         self.batch_norms = torch.nn.ModuleList()
-        # self.f1 = nn.Linear(7, 13)
+        self.f1 = nn.Linear(26, 13)
 
         for layer in range(self.num_layers-1):
             if layer == 0:
@@ -65,7 +65,7 @@ class GraphCNN(nn.Module):
                 padded_nei,
                 adj):
 
-        x_concat = x # self.f1(x.float().reshape(1,-1))
+        x_concat = x # self.f1(x.float())
         graph_pool = graph_pool
 
         if self.neighbor_pooling_type == "max":

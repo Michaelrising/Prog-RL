@@ -8,9 +8,13 @@ import time
 import torch.nn as nn
 import numpy as np
 from params import configs
-
-
+from torch.utils.tensorboard import SummaryWriter
+import os
+from datetime import datetime
+from scipy.stats import bernoulli
+import torchcontrib
 device = torch.device(configs.device)
+
 
 def permute_rows(x):
     ix_i = np.tile(np.arange(x.shape[0]), (x.shape[1], 1)).T
@@ -83,11 +87,18 @@ class PPO:
         self.policy_old = deepcopy(self.policy)
         self.policy_old.load_state_dict(self.policy.state_dict())
         self.optimizer = torch.optim.Adam(self.policy.parameters(), lr=lr)
+        self.swa = torchcontrib.optim.SWA(self.optimizer, swa_start=100, swa_freq=5)
         self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer,
                                                          step_size=configs.decay_step_size,
                                                          gamma=configs.decay_ratio)
 
         self.V_loss_2 = nn.MSELoss()
+
+    def Swap_swa_sgd(self, steps, swa_start = 100, swa_freq = 5):
+        if steps > swa_start + swa_freq:
+            self.swa.swap_swa_sgd()
+            return True
+        return False
 
     def update(self, memories, n_tasks, g_pool):
 
@@ -117,24 +128,24 @@ class PPO:
             fea_mb_t = torch.stack(memories[i].fea_mb).to(device)
             fea_mb_t = fea_mb_t.reshape(-1, fea_mb_t.size(-1))
             fea_mb_t_all_env.append(fea_mb_t)
-            candidate_mb_t_all_env.append(torch.stack(memories[i].candidate_mb).to(device).squeeze())
+            candidate_mb_t_all_env.append(torch.stack(memories[i].candidate_mb).to(device))
             mask_mb_t_all_env.append(torch.stack(memories[i].mask_mb).to(device).squeeze())
             a_mb_t_all_env.append(torch.stack(memories[i].a_mb).to(device).squeeze())
             old_logprobs_mb_t_all_env.append(torch.stack(memories[i].logprobs).to(device).squeeze().detach())
 
-        mb_g_pool = g_pool_cal(g_pool, torch.stack(memories[0].adj_mb).to(device).shape, n_tasks, device)
+        mb_g_pool_all_env = [g_pool_cal(g_pool, torch.stack(memories[i].adj_mb).to(device).shape, n_tasks, device) for i in range(len(memories))]
 
         for _ in range(self.k_epochs):
             loss_sum = 0
             vloss_sum = 0
             for i in range(len(memories)):
                 pis, vals = self.policy(x=fea_mb_t_all_env[i],
-                                        graph_pool=mb_g_pool,
+                                        graph_pool=mb_g_pool_all_env[i],
                                         adj=adj_mb_t_all_env[i],
                                         candidate=candidate_mb_t_all_env[i],
                                         mask=mask_mb_t_all_env[i],
                                         padded_nei=None)
-                logprobs, ent_loss = eval_actions(pis.squeeze(), a_mb_t_all_env[i])
+                logprobs, ent_loss = eval_actions(pis.squeeze(), a_mb_t_all_env[i]) ####!!!!
                 ratios = torch.exp(logprobs - old_logprobs_mb_t_all_env[i].detach())
                 advantages = rewards_all_env[i] - vals.detach()
                 surr1 = ratios * advantages
@@ -143,11 +154,12 @@ class PPO:
                 p_loss = - torch.min(surr1, surr2)
                 ent_loss = - ent_loss.clone()
                 loss = vloss_coef * v_loss + ploss_coef * p_loss + entloss_coef * ent_loss
-                loss_sum += loss
+                loss_sum += loss.mean()
                 vloss_sum += v_loss
-            self.optimizer.zero_grad()
-            loss_sum.mean().backward()
-            self.optimizer.step()
+            self.swa.zero_grad()
+            loss_sum.backward()
+            nn.utils.clip_grad_norm_(self.policy.parameters(), 0.5)
+            self.swa.step()
 
         self.policy_old.load_state_dict(self.policy.state_dict())
         if configs.decayflag:
@@ -194,48 +206,68 @@ def g_pool_cal(graph_pool_type, batch_size, n_nodes, device):
                                           ).to(device)
     return graph_pool
 
-def validate(vali_set, model):
-    N_JOBS = vali_set[0][0].shape[0]
-    N_MODES = vali_set[0][0].shape[1]
-    env = Env(n_j=N_JOBS, n_m=N_MODES)
+
+def validate(model):
+    env = ProgEnv(filename=configs.filepath)
     device = torch.device(configs.device)
     g_pool_step = g_pool_cal(graph_pool_type=configs.graph_pool_type,
-                             batch_size=torch.Size([1, env.number_of_tasks, env.number_of_tasks]),
-                             n_nodes=env.number_of_tasks,
+                             batch_size=torch.Size([1, env.action_space.n, env.action_space.n]),
+                             n_nodes=env.action_space.n,
                              device=device)
-    make_spans = []
-    for data in vali_set:
-        adj, fea, candidate, mask = env.reset(data)
-        rewards = - env.initQuality
-        while True:
-            fea_tensor = torch.from_numpy(np.copy(fea)).to(device)
-            adj_tensor = torch.from_numpy(np.copy(adj)).to(device).to_sparse()
-            candidate_tensor = torch.from_numpy(np.copy(candidate)).to(device)
-            mask_tensor = torch.from_numpy(np.copy(mask)).to(device)
-            with torch.no_grad():
-                pi, _ = model(x=fea_tensor,
-                              graph_pool=g_pool_step,
-                              padded_nei=None,
-                              adj=adj_tensor,
-                              candidate=candidate_tensor.unsqueeze(0),
-                              mask=mask_tensor.unsqueeze(0))
+    adj, fea, candidate, mask = env.reset()
+    rewards = 0
+    actions = []
+    times = []
+    while True:
+        fea_tensor = torch.from_numpy(np.copy(fea)).to(device).float()
+        adj_tensor = torch.from_numpy(np.copy(adj)).to(device).to_sparse().float()
+        candidate_tensor = torch.from_numpy(np.copy(candidate)).to(device).float()
+        mask_tensor = torch.from_numpy(np.copy(mask)).to(device)
+        with torch.no_grad():
+            pi, _ = model(x=fea_tensor,
+                       graph_pool=g_pool_step,
+                       padded_nei=None,
+                       adj=adj_tensor,
+                       candidate=candidate_tensor.unsqueeze(0),
+                       mask=mask_tensor.unsqueeze(0))
             action = greedy_select_action(pi, candidate)
-            adj, fea, reward, done, candidate, mask = env.step(action.item())
-            rewards += reward
-            if done:
-                break
-        make_spans.append(rewards - env.posRewards)
-    return np.array(make_spans)
+        adj, fea, reward, done, candidate, mask, startTime = env.step(action.item())
+        rewards += reward
+        actions.append(action.item())
+        times.append(startTime)
+        if done:
+            break
+    return rewards, actions, times
 
-def main():
-    # envs = [Env(n_j=configs.n_j, n_m=configs.n_m) for _ in range(configs.num_envs)]
+
+def memory_append(memory,device, adj, fea, candidate, mask, action = None, reward=None, done = None):
+    memory.adj_mb.append(torch.from_numpy(np.copy(adj)).to(device).to_sparse().float())
+    memory.fea_mb.append(torch.from_numpy(np.copy(fea)).to(device).float())
+    memory.candidate_mb.append(torch.from_numpy(np.copy(candidate)).to(device).float())
+    memory.mask_mb.append(torch.from_numpy(np.copy(mask)).to(device))
+    if action is not None:
+        memory.a_mb.append(torch.from_numpy(np.copy(action)).to(device))
+    if reward is not None:
+        memory.r_mb.append(torch.from_numpy(np.copy(reward)).to(device))
+    if done is not None:
+        memory.done_mb.append(done)
+
+
+def greedy(steps,max_steps, eps):
+    # reward_array_mask = sum(np.array(self.eval_reward, dtype=np.float) >= self.max_episode_steps)
+    # eps = 1 / self.eval_reward.maxlen * reward_array_mask
+    # mask = bool(reward_array_mask > 2 and (self.steps > self.eval_reward.maxlen * self.eval_interval))
+    # the probability of explore goes from 0.5 to 0.01 from step starts to num_steps/2 steps and keep in 0.1 after that
+    lowest_eps = 0.1
+    epsilon = eps - (eps - lowest_eps) * steps/ (max_steps * 0.1)
+    epsilon = epsilon if epsilon >= lowest_eps else lowest_eps
+    decision = bernoulli.rvs(1 - epsilon, size=1).item()
+    return decision
+
+
+def main(summary_dir):
+    writer = SummaryWriter(log_dir=summary_dir)
     envs = [ProgEnv(filename=configs.filepath) for _ in range(configs.num_envs)]
-    # data_generator = uni_instance_gen
-    # dataLoaded = np.load('./DataGen/generatedData' + str(configs.n_j) + '_' + str(configs.n_m) + '_Seed' + str(configs.np_seed_validation) + '.npy')
-    # vali_data = []
-    # for i in range(dataLoaded.shape[0]):
-    #     vali_data.append((dataLoaded[i][0], dataLoaded[i][1]))
-
     torch.manual_seed(configs.torch_seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(configs.torch_seed)
@@ -262,90 +294,68 @@ def main():
     validation_log = []
     optimal_gaps = []
     optimal_gap = 1
-    record = 100000
+    record = -100000
     for i_update in range(configs.max_updates):
+        # utilize swa parameters to generate training data
+        ppo.Swap_swa_sgd(i_update);
+        action_choice = greedy(i_update,configs.max_updates,  0.5)
         ep_rewards = [0 for _ in range(configs.num_envs)]
-        adj_envs = []
-        fea_envs = []
-        candidate_envs = []
-        mask_envs = []
-        
         for i, env in enumerate(envs):
+            def ACT(pi, candidate, action_choice, memory):
+                if action_choice:
+                    return greedy_select_action(pi, candidate, memory)
+                else:
+                    return select_action(pi, candidate, memory)
             adj, fea, candidate, mask = env.reset()
-            adj_envs.append(adj)
-            fea_envs.append(fea)
-            candidate_envs.append(candidate)
-            mask_envs.append(mask)
             ep_rewards[i] = 0
-            fea_tensor_envs = [torch.from_numpy(np.copy(fea)).to(device).float() for fea in fea_envs]
-            adj_tensor_envs = [torch.from_numpy(np.copy(adj)).to(device).to_sparse().float() for adj in adj_envs]
-            candidate_tensor_envs = [torch.from_numpy(np.copy(candidate)).to(device).float() for candidate in candidate_envs]
-            mask_tensor_envs = [torch.from_numpy(np.copy(mask)).to(device) for mask in mask_envs]
-            
-            with torch.no_grad():
-                action_envs = []
-                a_idx_envs = []
-                for i in range(configs.num_envs):
-                    pi, _ = ppo.policy_old(x=fea_tensor_envs[i],
+            while True:
+                fea_tensor = torch.from_numpy(np.copy(fea)).to(device).float()
+                adj_tensor = torch.from_numpy(np.copy(adj)).to(device).to_sparse().float()
+                candidate_tensor = torch.from_numpy(np.copy(candidate)).to(device).float()
+                mask_tensor = torch.from_numpy(np.copy(mask)).to(device)
+                with torch.no_grad():
+                    pi, _ = ppo.policy_old(x=fea_tensor,
                                            graph_pool=g_pool_step,
                                            padded_nei=None,
-                                           adj=adj_tensor_envs[i],
-                                           candidate=candidate_tensor_envs[i].unsqueeze(0),
-                                           mask=mask_tensor_envs[i].unsqueeze(0))
-                    action, a_idx = select_action(pi, candidate_envs[i], memories[i])
-                    action_envs.append(action)
-                    a_idx_envs.append(a_idx)
-            
-            adj_envs = []
-            fea_envs = []
-            candidate_envs = []
-            mask_envs = []
-            for i in range(configs.num_envs):
-                memories[i].adj_mb.append(adj_tensor_envs[i])
-                memories[i].fea_mb.append(fea_tensor_envs[i])
-                memories[i].candidate_mb.append(candidate_tensor_envs[i])
-                memories[i].mask_mb.append(mask_tensor_envs[i])
-                memories[i].a_mb.append(a_idx_envs[i])
-
-                adj, fea, reward, done, candidate, mask = envs[i].step(action_envs[i].item())
-                adj_envs.append(adj)
-                fea_envs.append(fea)
-                candidate_envs.append(candidate)
-                mask_envs.append(mask)
+                                           adj=adj_tensor,
+                                           candidate=candidate_tensor.unsqueeze(0),
+                                           mask=mask_tensor.unsqueeze(0))
+                    action = ACT(pi, candidate, action_choice, memories[i])# greedy_select_action(pi, candidate, memories[i]) if greedy(i_update,configs.max_updates,  0.5) else select_action(pi, candidate, memories[i])
+                adj, fea, reward, done, candidate, mask, _ = env.step(action)
                 ep_rewards[i] += reward
-                memories[i].r_mb.append(reward)
-                memories[i].done_mb.append(done)
-            if envs[0].done():
-                break
-        # for j in range(configs.num_envs):
-        #     ep_rewards[j] -= envs[j].posRewards
-
+                memory_append(memories[i], device, adj, fea, candidate, mask, action, reward, done)
+                if env.done:
+                    break
+        ppo.Swap_swa_sgd(i_update);
         loss, v_loss = ppo.update(memories, envs[0].action_space.n, configs.graph_pool_type)
         for memory in memories:
             memory.clear_memory()
         mean_rewards_all_env = sum(ep_rewards) / len(ep_rewards)
-        log.append([i_update, mean_rewards_all_env])
-        if i_update % 100 == 0:
-            file_writing_obj = open('./' + 'log_' + '.txt', 'w')
-            file_writing_obj.write(str(log))
+
+        writer.add_scalar('VLoss', v_loss, i_update)
+        writer.add_scalar("Reward/train", mean_rewards_all_env, i_update)
 
         print('Episode {}\t Last reward: {:.2f}\t Mean_Vloss: {:.8f}'.format(
             i_update, mean_rewards_all_env, v_loss))
 
-        # if i_update % 99 == 0:
-        #     vali_result = - validate(vali_data, ppo.policy).mean()
-        #     validation_log.append(vali_result)
-        #     if vali_result < record:
-        #         torch.save(ppo.policy.state_dict(), './{}.pth'.format(
-        #             str(configs.n_j) + '_' + str(configs.n_m) + '_' + str(configs.low) + '_' + str(configs.high)))
-        #         record = vali_result
-        #     print('The validation quality is:', vali_result)
-        #     file_writing_obj1 = open(
-        #         './' + 'vali_' + str(configs.n_j) + '_' + str(configs.n_m) + '_' + str(configs.low) + '_' + str(configs.high) + '.txt', 'w')
-        #     file_writing_obj1.write(str(validation_log))
+        if i_update % 99 == 0:
+            ppo.Swap_swa_sgd(i_update);
+            rewards, actions, times = validate(ppo.policy)
+            ppo.Swap_swa_sgd(i_update);
+            if rewards > record:
+                torch.save(ppo.policy.state_dict(), summary_dir + '/{}.pth'.format("PPO-ProgramEnv-"+"seed-" + str(configs.np_seed_train)))
+                record = rewards
+            print('The validation quality is:', rewards)
+            print("The action sequence is:", actions)
+            print("The start time sequence is:", times)
+            writer.add_scalar("Reward/Test", rewards, i_update)
 
 
 if __name__ == '__main__':
+    t = datetime.now().strftime("%Y%m%d-%H%M")
+    summary_dir = os.path.join("log", 'summary', str(t))
+    if not os.path.exists(summary_dir):
+        os.makedirs(summary_dir)
     total1 = time.time()
-    main()
+    main(summary_dir)
     total2 = time.time()

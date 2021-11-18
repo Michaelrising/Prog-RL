@@ -49,7 +49,7 @@ class ActorCritic(nn.Module):
                                                  graph_pool=graph_pool,
                                                  padded_nei=padded_nei,
                                                  adj=adj)
-        dummy = candidate.unsqueeze(-1).expand(-1, candidate.shape[0], h_nodes.size(-1))
+        dummy = candidate.unsqueeze(-1).expand(-1, candidate.shape[1], h_nodes.size(-1)).long()
         candidate_feature = torch.gather(h_nodes.reshape(dummy.size(0), -1, dummy.size(-1)), 1, dummy)
         h_pooled_repeated = h_pooled.unsqueeze(1).expand_as(candidate_feature)
         concateFea = torch.cat((candidate_feature, h_pooled_repeated), dim=-1)

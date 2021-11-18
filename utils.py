@@ -5,7 +5,7 @@ def select_action(p, cadidate, memory):
     dist = Categorical(p.squeeze())
     s = dist.sample()
     if memory is not None: memory.logprobs.append(dist.log_prob(s))
-    return cadidate[s], s
+    return cadidate[s]
 
 
 def eval_actions(p, actions):
@@ -15,9 +15,11 @@ def eval_actions(p, actions):
     return ret, entropy
 
 
-def greedy_select_action(p, candidate):
+def greedy_select_action(p, candidate, memory=None):
     _, index = p.squeeze().max(0)
     action = candidate[index]
+    dist = Categorical(p.squeeze())
+    if memory is not None: memory.logprobs.append(dist.log_prob(index))
     return action
 
 
