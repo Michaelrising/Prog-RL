@@ -29,8 +29,8 @@ class ProgEnv(Constraints, ReadInfo):
         self.timeStatus = np.zeros(self.action_space.n)
         self.candidate = np.arange(self.action_space.n)
         self.pastMask = np.full(shape=self.action_space.n, fill_value=0, dtype=bool)
-        self.penalty_coeff0 = 10
-        self.penalty_coeff1 = 5
+        self.penalty_coeff0 = 5
+        self.penalty_coeff1 = 2
         self.lastTime = 0
         # self.actionPairs = []
 
@@ -148,6 +148,7 @@ class ProgEnv(Constraints, ReadInfo):
             else:
                 startTime = max(greedy_startTime, startTime)
         else:
+            RenewFeasible = False
             self.done = True
         self.crtTime = startTime
         self.timeSeq.append(self.crtTime)
@@ -159,6 +160,9 @@ class ProgEnv(Constraints, ReadInfo):
             T, _, _ = self.getProjectTime(self.timeSeq, self.modeSeq, self.actSeq)
             self.crtTime = T
         # assign reward
+        # feasible reward
+        f_reward = actionFeasible * 2 + nonRenewFeasible * 1 + RenewFeasible * 1
+        reward = f_reward
         potential1 = self.potential()
         renewR = self.get_current_mode_using_renewable_resource(self.crtMode, self.crtAct)
         NonrenewR = self.get_current_mode_using_nonrenewable_resource(self.crtMode, self.crtAct)
@@ -167,11 +171,11 @@ class ProgEnv(Constraints, ReadInfo):
             renew_Penalty = np.dot(renewR, self.price_renewable_resource.reshape(-1))
             nonrenew_Penalty = np.dot(NonrenewR, self.price_nonrenewable_resource.reshape(-1))
             time_penalty = (self.crtTime - self.lastTime)*1
-            reward = potential1 - potential0 - time_penalty - renew_Penalty - nonrenew_Penalty
+            reward += potential1 - potential0 - time_penalty - renew_Penalty - nonrenew_Penalty
         elif not actionFeasible:
-            reward = - self.penalty_coeff0 * len(self.actStatus[self.actStatus == 0])
+            reward += - self.penalty_coeff0 * len(self.actStatus[self.actStatus == 0])
         else:
-            reward = - self.penalty_coeff1 * len(self.actStatus[self.actStatus == 0])
+            reward += - self.penalty_coeff1 * len(self.actStatus[self.actStatus == 0])
 
         self.steps += 1
         feasibleMask = self.feasibleAction()
