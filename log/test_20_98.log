@@ -1,0 +1,293 @@
+nohup: ignoring input
+2021-11-18 17:47:29.596963: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudart.so.11.0
+./test.sch
+./test.sch
+./test.sch
+./test.sch
+Episode 0	 Last reward: 15.13	 Mean_Vloss: 2.94266391
+./test.sch
+The validation quality is: 34.36462585034014
+The action sequence is: [0, 1, 4, 2, 8, 11]
+The start time sequence is: [1, 2, 7, 8.0, 13, 15.0]
+Episode 1	 Last reward: 2.91	 Mean_Vloss: 2.62152743
+Episode 2	 Last reward: 11.27	 Mean_Vloss: 2.39671087
+Episode 3	 Last reward: 20.20	 Mean_Vloss: 2.28197527
+Episode 4	 Last reward: 25.84	 Mean_Vloss: 2.15496588
+Episode 5	 Last reward: -5.94	 Mean_Vloss: 1.65392053
+Episode 6	 Last reward: -5.03	 Mean_Vloss: 1.40369105
+Episode 7	 Last reward: 12.25	 Mean_Vloss: 1.47913122
+Episode 8	 Last reward: -18.49	 Mean_Vloss: 0.94294363
+Episode 9	 Last reward: -5.74	 Mean_Vloss: 0.94739699
+Episode 10	 Last reward: 46.45	 Mean_Vloss: 1.64191771
+Episode 11	 Last reward: 17.24	 Mean_Vloss: 1.07314467
+Episode 12	 Last reward: 15.29	 Mean_Vloss: 0.92328370
+Episode 13	 Last reward: 21.09	 Mean_Vloss: 1.01443732
+Episode 14	 Last reward: 15.33	 Mean_Vloss: 0.96680492
+Episode 15	 Last reward: -16.93	 Mean_Vloss: 0.52277291
+Episode 16	 Last reward: 35.30	 Mean_Vloss: 0.89720142
+Episode 17	 Last reward: 48.81	 Mean_Vloss: 1.17718589
+Episode 18	 Last reward: 11.41	 Mean_Vloss: 0.63007593
+Episode 19	 Last reward: 4.23	 Mean_Vloss: 0.43102020
+Episode 20	 Last reward: 4.81	 Mean_Vloss: 0.61009073
+Episode 21	 Last reward: -4.46	 Mean_Vloss: 0.46227220
+Episode 22	 Last reward: 6.41	 Mean_Vloss: 0.49491057
+Episode 23	 Last reward: -5.63	 Mean_Vloss: 0.32202965
+Episode 24	 Last reward: 1.42	 Mean_Vloss: 0.20593950
+Episode 25	 Last reward: -25.25	 Mean_Vloss: 0.08524417
+Episode 26	 Last reward: -8.96	 Mean_Vloss: 0.22164997
+Episode 27	 Last reward: -5.04	 Mean_Vloss: 0.19216396
+Episode 28	 Last reward: -2.18	 Mean_Vloss: 0.22711998
+Episode 29	 Last reward: -13.23	 Mean_Vloss: 0.17935589
+Episode 30	 Last reward: 11.43	 Mean_Vloss: 0.26977572
+Episode 31	 Last reward: -3.57	 Mean_Vloss: 0.10806873
+Episode 32	 Last reward: 7.89	 Mean_Vloss: 0.17487222
+Episode 33	 Last reward: 5.32	 Mean_Vloss: 0.05227023
+Episode 34	 Last reward: 24.94	 Mean_Vloss: 0.26801366
+Episode 35	 Last reward: -1.32	 Mean_Vloss: 0.02317701
+Episode 36	 Last reward: -2.25	 Mean_Vloss: 0.26177147
+Episode 37	 Last reward: 0.36	 Mean_Vloss: 0.15141138
+Episode 38	 Last reward: -15.68	 Mean_Vloss: 0.01750155
+Episode 39	 Last reward: -4.68	 Mean_Vloss: 0.20563808
+Episode 40	 Last reward: 23.14	 Mean_Vloss: 0.29595554
+Episode 41	 Last reward: -27.43	 Mean_Vloss: 0.00121396
+Episode 42	 Last reward: 3.05	 Mean_Vloss: 0.09328354
+Episode 43	 Last reward: -21.55	 Mean_Vloss: 0.00198683
+Episode 44	 Last reward: 31.96	 Mean_Vloss: 0.38097262
+Episode 45	 Last reward: 7.71	 Mean_Vloss: 0.03128915
+Episode 46	 Last reward: -18.28	 Mean_Vloss: 0.00082482
+Episode 47	 Last reward: -13.65	 Mean_Vloss: 0.11167721
+Episode 48	 Last reward: -15.68	 Mean_Vloss: 0.02195010
+Episode 49	 Last reward: -1.95	 Mean_Vloss: 0.03975862
+./test.sch
+The validation quality is: -15.666666666666664
+The action sequence is: [0, 1, 3, 5]
+The start time sequence is: [1, 2, 9, 10]
+Episode 50	 Last reward: 3.87	 Mean_Vloss: 0.16641471
+Episode 51	 Last reward: 31.70	 Mean_Vloss: 0.11272053
+Episode 52	 Last reward: 60.09	 Mean_Vloss: 0.20940831
+Episode 53	 Last reward: -4.90	 Mean_Vloss: 0.18206003
+Episode 54	 Last reward: 20.27	 Mean_Vloss: 0.11508162
+Episode 55	 Last reward: -14.92	 Mean_Vloss: 0.02382777
+Episode 56	 Last reward: -4.69	 Mean_Vloss: 0.06671016
+Episode 57	 Last reward: 0.80	 Mean_Vloss: 0.17483278
+Episode 58	 Last reward: 13.06	 Mean_Vloss: 0.07934512
+Episode 59	 Last reward: 13.21	 Mean_Vloss: 0.10872791
+Episode 60	 Last reward: 7.12	 Mean_Vloss: 0.11135513
+Episode 61	 Last reward: 23.18	 Mean_Vloss: 0.11526315
+Episode 62	 Last reward: 11.44	 Mean_Vloss: 0.01859954
+Episode 63	 Last reward: 33.34	 Mean_Vloss: 0.23924729
+Episode 64	 Last reward: 49.48	 Mean_Vloss: 0.18201384
+Episode 65	 Last reward: -0.42	 Mean_Vloss: 0.21387251
+Episode 66	 Last reward: -7.70	 Mean_Vloss: 0.07600306
+Episode 67	 Last reward: 7.65	 Mean_Vloss: 0.05051208
+Episode 68	 Last reward: -10.53	 Mean_Vloss: 0.00862910
+Episode 69	 Last reward: -1.49	 Mean_Vloss: 0.13717636
+Episode 70	 Last reward: -13.70	 Mean_Vloss: 0.00593883
+Episode 71	 Last reward: 41.22	 Mean_Vloss: 0.18526050
+Episode 72	 Last reward: -2.52	 Mean_Vloss: 0.11314289
+Episode 73	 Last reward: 32.64	 Mean_Vloss: 0.24901363
+Episode 74	 Last reward: -9.89	 Mean_Vloss: 0.09679227
+Episode 75	 Last reward: 8.29	 Mean_Vloss: 0.01358677
+Episode 76	 Last reward: -2.81	 Mean_Vloss: 0.00880906
+Episode 77	 Last reward: 12.09	 Mean_Vloss: 0.02988183
+Episode 78	 Last reward: 16.94	 Mean_Vloss: 0.14359701
+Episode 79	 Last reward: 20.37	 Mean_Vloss: 0.03012387
+Episode 80	 Last reward: 12.87	 Mean_Vloss: 0.03995758
+Episode 81	 Last reward: -1.47	 Mean_Vloss: 0.06194262
+Episode 82	 Last reward: 4.00	 Mean_Vloss: 0.00577910
+Episode 83	 Last reward: 25.11	 Mean_Vloss: 0.06693553
+Episode 84	 Last reward: 7.09	 Mean_Vloss: 0.01148778
+Episode 85	 Last reward: -30.04	 Mean_Vloss: 0.00011850
+Episode 86	 Last reward: -14.59	 Mean_Vloss: 0.00130548
+Episode 87	 Last reward: -10.00	 Mean_Vloss: 0.00352607
+Episode 88	 Last reward: 23.21	 Mean_Vloss: 0.00658927
+Episode 89	 Last reward: 27.98	 Mean_Vloss: 0.10031381
+Episode 90	 Last reward: 33.39	 Mean_Vloss: 0.09964798
+Episode 91	 Last reward: 0.53	 Mean_Vloss: 0.01092772
+Episode 92	 Last reward: -4.38	 Mean_Vloss: 0.01457694
+Episode 93	 Last reward: -1.62	 Mean_Vloss: 0.00383803
+Episode 94	 Last reward: 32.08	 Mean_Vloss: 0.09382279
+Episode 95	 Last reward: 13.12	 Mean_Vloss: 0.06465827
+Episode 96	 Last reward: -2.28	 Mean_Vloss: 0.01663477
+Episode 97	 Last reward: -18.49	 Mean_Vloss: 0.00052254
+Episode 98	 Last reward: 3.13	 Mean_Vloss: 0.10289020
+./test.sch
+The validation quality is: -20.01904761904762
+The action sequence is: [0, 1, 2, 5]
+The start time sequence is: [1, 2, 6, 7]
+Episode 99	 Last reward: -13.18	 Mean_Vloss: 0.07513107
+Episode 100	 Last reward: -14.92	 Mean_Vloss: 0.00274689
+Episode 101	 Last reward: -6.71	 Mean_Vloss: 0.00431249
+Episode 102	 Last reward: 17.31	 Mean_Vloss: 0.12320267
+Episode 103	 Last reward: 9.80	 Mean_Vloss: 0.02847313
+Episode 104	 Last reward: 2.47	 Mean_Vloss: 0.04282358
+Episode 105	 Last reward: -12.11	 Mean_Vloss: 0.00432235
+Episode 106	 Last reward: 33.01	 Mean_Vloss: 0.02128499
+Episode 107	 Last reward: -13.14	 Mean_Vloss: 0.00067122
+Episode 108	 Last reward: -13.18	 Mean_Vloss: 0.07294174
+Episode 109	 Last reward: 19.73	 Mean_Vloss: 0.00515584
+Episode 110	 Last reward: 5.63	 Mean_Vloss: 0.01303902
+Episode 111	 Last reward: 30.64	 Mean_Vloss: 0.03801516
+Episode 112	 Last reward: -5.25	 Mean_Vloss: 0.07834928
+Episode 113	 Last reward: -10.89	 Mean_Vloss: 0.00108722
+Episode 114	 Last reward: -0.24	 Mean_Vloss: 0.01230961
+Episode 115	 Last reward: -13.14	 Mean_Vloss: 0.00136406
+Episode 116	 Last reward: -4.01	 Mean_Vloss: 0.04074738
+Episode 117	 Last reward: -14.82	 Mean_Vloss: 0.00365542
+Episode 118	 Last reward: 20.97	 Mean_Vloss: 0.02248958
+Episode 119	 Last reward: -23.72	 Mean_Vloss: 0.00418116
+Episode 120	 Last reward: 29.67	 Mean_Vloss: 0.04647289
+Episode 121	 Last reward: 19.20	 Mean_Vloss: 0.03589619
+Episode 122	 Last reward: 14.97	 Mean_Vloss: 0.03384596
+Episode 123	 Last reward: -27.43	 Mean_Vloss: 0.00013488
+Episode 124	 Last reward: -31.13	 Mean_Vloss: 0.00001294
+Episode 125	 Last reward: -5.49	 Mean_Vloss: 0.00964911
+Episode 126	 Last reward: 5.64	 Mean_Vloss: 0.02573893
+Episode 127	 Last reward: 11.88	 Mean_Vloss: 0.05671123
+Episode 128	 Last reward: 29.79	 Mean_Vloss: 0.04877233
+Episode 129	 Last reward: 24.39	 Mean_Vloss: 0.13218418
+Episode 130	 Last reward: -1.25	 Mean_Vloss: 0.05000361
+Episode 131	 Last reward: -14.84	 Mean_Vloss: 0.01399784
+Episode 132	 Last reward: 19.28	 Mean_Vloss: 0.01312266
+Episode 133	 Last reward: -1.99	 Mean_Vloss: 0.01443810
+Episode 134	 Last reward: -5.65	 Mean_Vloss: 0.01137112
+Episode 135	 Last reward: 19.00	 Mean_Vloss: 0.02032626
+Episode 136	 Last reward: -16.93	 Mean_Vloss: 0.05589484
+Episode 137	 Last reward: -5.43	 Mean_Vloss: 0.02217826
+Episode 138	 Last reward: 3.32	 Mean_Vloss: 0.04076411
+Episode 139	 Last reward: -18.39	 Mean_Vloss: 0.02350596
+Episode 140	 Last reward: 11.85	 Mean_Vloss: 0.02984362
+Episode 141	 Last reward: 25.59	 Mean_Vloss: 0.06824394
+Episode 142	 Last reward: -12.11	 Mean_Vloss: 0.00865330
+Episode 143	 Last reward: 17.54	 Mean_Vloss: 0.05381087
+Episode 144	 Last reward: 19.66	 Mean_Vloss: 0.04154963
+Episode 145	 Last reward: 20.52	 Mean_Vloss: 0.01528498
+Episode 146	 Last reward: -8.85	 Mean_Vloss: 0.00439267
+Episode 147	 Last reward: 13.39	 Mean_Vloss: 0.03249178
+./test.sch
+The validation quality is: 65.22176870748298
+The action sequence is: [0, 1, 3, 4, 11, 7, 12]
+The start time sequence is: [1, 2, 9, 10, 17, 18, 26]
+Episode 148	 Last reward: 35.11	 Mean_Vloss: 0.01390233
+Episode 149	 Last reward: -18.54	 Mean_Vloss: 0.00507543
+Episode 150	 Last reward: -1.53	 Mean_Vloss: 0.03927920
+Episode 151	 Last reward: -6.06	 Mean_Vloss: 0.00412830
+Episode 152	 Last reward: 21.04	 Mean_Vloss: 0.03996646
+Episode 153	 Last reward: -13.70	 Mean_Vloss: 0.00392245
+Episode 154	 Last reward: 32.74	 Mean_Vloss: 0.01830179
+Episode 155	 Last reward: -9.53	 Mean_Vloss: 0.03283321
+Episode 156	 Last reward: -19.02	 Mean_Vloss: 0.00126438
+Episode 157	 Last reward: -9.59	 Mean_Vloss: 0.00124493
+Episode 158	 Last reward: 8.70	 Mean_Vloss: 0.01603434
+Episode 159	 Last reward: -9.42	 Mean_Vloss: 0.00601589
+Episode 160	 Last reward: 14.68	 Mean_Vloss: 0.05232203
+Episode 161	 Last reward: 1.62	 Mean_Vloss: 0.00866331
+Episode 162	 Last reward: -13.83	 Mean_Vloss: 0.00439827
+Episode 163	 Last reward: 1.10	 Mean_Vloss: 0.01856720
+Episode 164	 Last reward: 7.30	 Mean_Vloss: 0.03132373
+Episode 165	 Last reward: 34.85	 Mean_Vloss: 0.06011986
+Episode 166	 Last reward: -31.13	 Mean_Vloss: 0.00006891
+Episode 167	 Last reward: 7.76	 Mean_Vloss: 0.04650415
+Episode 168	 Last reward: 28.91	 Mean_Vloss: 0.02726076
+Episode 169	 Last reward: -13.99	 Mean_Vloss: 0.00863622
+Episode 170	 Last reward: 27.09	 Mean_Vloss: 0.04437928
+Episode 171	 Last reward: 25.04	 Mean_Vloss: 0.03812142
+Episode 172	 Last reward: -8.94	 Mean_Vloss: 0.00679359
+Episode 173	 Last reward: -5.78	 Mean_Vloss: 0.02776538
+Episode 174	 Last reward: -0.42	 Mean_Vloss: 0.01900558
+Episode 175	 Last reward: 41.62	 Mean_Vloss: 0.02968892
+Episode 176	 Last reward: 17.50	 Mean_Vloss: 0.04406967
+Episode 177	 Last reward: -19.38	 Mean_Vloss: 0.00203095
+Episode 178	 Last reward: -0.99	 Mean_Vloss: 0.02311157
+Episode 179	 Last reward: 12.12	 Mean_Vloss: 0.00927280
+Episode 180	 Last reward: -8.35	 Mean_Vloss: 0.00047864
+Episode 181	 Last reward: 39.07	 Mean_Vloss: 0.01105549
+Episode 182	 Last reward: -17.84	 Mean_Vloss: 0.00126291
+Episode 183	 Last reward: -13.75	 Mean_Vloss: 0.00366944
+Episode 184	 Last reward: 29.97	 Mean_Vloss: 0.04071839
+Episode 185	 Last reward: -1.30	 Mean_Vloss: 0.00809303
+Episode 186	 Last reward: -0.67	 Mean_Vloss: 0.03007167
+Episode 187	 Last reward: 15.39	 Mean_Vloss: 0.00681197
+Episode 188	 Last reward: 3.09	 Mean_Vloss: 0.00901136
+Episode 189	 Last reward: -9.59	 Mean_Vloss: 0.00076422
+Episode 190	 Last reward: 5.24	 Mean_Vloss: 0.00339972
+Episode 191	 Last reward: -8.30	 Mean_Vloss: 0.00184237
+Episode 192	 Last reward: -7.18	 Mean_Vloss: 0.00787407
+Episode 193	 Last reward: -16.90	 Mean_Vloss: 0.00043607
+Episode 194	 Last reward: 2.21	 Mean_Vloss: 0.00781613
+Episode 195	 Last reward: 38.64	 Mean_Vloss: 0.02290850
+Episode 196	 Last reward: 20.35	 Mean_Vloss: 0.00882738
+./test.sch
+The validation quality is: 67.96190476190478
+The action sequence is: [0, 1, 3, 4, 11, 9, 12]
+The start time sequence is: [1, 2, 9, 10, 17, 18.0, 25]
+Episode 197	 Last reward: 33.26	 Mean_Vloss: 0.03568550
+Episode 198	 Last reward: 15.82	 Mean_Vloss: 0.00659340
+Episode 199	 Last reward: 36.27	 Mean_Vloss: 0.03975867
+Episode 200	 Last reward: 37.45	 Mean_Vloss: 0.06581657
+Episode 201	 Last reward: 33.38	 Mean_Vloss: 0.01765695
+Episode 202	 Last reward: 22.36	 Mean_Vloss: 0.01092437
+Episode 203	 Last reward: 14.99	 Mean_Vloss: 0.01793941
+Episode 204	 Last reward: 19.71	 Mean_Vloss: 0.01872401
+Episode 205	 Last reward: 23.54	 Mean_Vloss: 0.01945513
+Episode 206	 Last reward: -9.06	 Mean_Vloss: 0.00157887
+Episode 207	 Last reward: -0.24	 Mean_Vloss: 0.01142810
+Episode 208	 Last reward: -14.68	 Mean_Vloss: 0.00166641
+Episode 209	 Last reward: 35.67	 Mean_Vloss: 0.04410901
+Episode 210	 Last reward: -4.90	 Mean_Vloss: 0.01739469
+Episode 211	 Last reward: 0.62	 Mean_Vloss: 0.02520774
+Episode 212	 Last reward: 20.21	 Mean_Vloss: 0.01104870
+Episode 213	 Last reward: 12.94	 Mean_Vloss: 0.01032512
+Episode 214	 Last reward: 12.25	 Mean_Vloss: 0.00330678
+Episode 215	 Last reward: 11.23	 Mean_Vloss: 0.01445860
+Episode 216	 Last reward: -5.33	 Mean_Vloss: 0.00261900
+Episode 217	 Last reward: 41.34	 Mean_Vloss: 0.02957511
+Episode 218	 Last reward: -13.65	 Mean_Vloss: 0.00174495
+Episode 219	 Last reward: 3.33	 Mean_Vloss: 0.00712636
+Episode 220	 Last reward: -1.99	 Mean_Vloss: 0.00770540
+Episode 221	 Last reward: 19.55	 Mean_Vloss: 0.00420361
+Episode 222	 Last reward: 41.91	 Mean_Vloss: 0.04521830
+Episode 223	 Last reward: -9.88	 Mean_Vloss: 0.00177862
+Episode 224	 Last reward: 22.15	 Mean_Vloss: 0.02185762
+Episode 225	 Last reward: 11.89	 Mean_Vloss: 0.01075691
+Episode 226	 Last reward: 3.26	 Mean_Vloss: 0.00722217
+Episode 227	 Last reward: -1.41	 Mean_Vloss: 0.00131842
+Episode 228	 Last reward: -6.22	 Mean_Vloss: 0.00630454
+Episode 229	 Last reward: -0.20	 Mean_Vloss: 0.00239516
+Episode 230	 Last reward: 12.52	 Mean_Vloss: 0.00956623
+Episode 231	 Last reward: 7.86	 Mean_Vloss: 0.00233295
+Episode 232	 Last reward: 3.06	 Mean_Vloss: 0.01862107
+Episode 233	 Last reward: 6.40	 Mean_Vloss: 0.00277452
+Episode 234	 Last reward: -22.73	 Mean_Vloss: 0.00097047
+Episode 235	 Last reward: 23.86	 Mean_Vloss: 0.02310823
+Episode 236	 Last reward: 2.63	 Mean_Vloss: 0.00676430
+Episode 237	 Last reward: 44.85	 Mean_Vloss: 0.01628712
+Episode 238	 Last reward: -20.46	 Mean_Vloss: 0.00070543
+Episode 239	 Last reward: 13.44	 Mean_Vloss: 0.03047964
+Episode 240	 Last reward: -8.96	 Mean_Vloss: 0.00055071
+Episode 241	 Last reward: -5.78	 Mean_Vloss: 0.00144577
+Episode 242	 Last reward: 27.30	 Mean_Vloss: 0.00735295
+Episode 243	 Last reward: -31.13	 Mean_Vloss: 0.00009077
+Episode 244	 Last reward: 2.72	 Mean_Vloss: 0.00303114
+Episode 245	 Last reward: 15.67	 Mean_Vloss: 0.00427065
+./test.sch
+The validation quality is: -15.666666666666664
+The action sequence is: [0, 1, 3, 5]
+The start time sequence is: [1, 2, 9, 10]
+Episode 246	 Last reward: -26.34	 Mean_Vloss: 0.00013022
+Episode 247	 Last reward: 16.76	 Mean_Vloss: 0.00827123
+Episode 248	 Last reward: 12.12	 Mean_Vloss: 0.05076022
+Episode 249	 Last reward: 20.30	 Mean_Vloss: 0.02547215
+Episode 250	 Last reward: 20.64	 Mean_Vloss: 0.00776197
+Episode 251	 Last reward: 26.45	 Mean_Vloss: 0.01738483
+Episode 252	 Last reward: -0.38	 Mean_Vloss: 0.00322820
+Episode 253	 Last reward: -0.69	 Mean_Vloss: 0.00188144
+Episode 254	 Last reward: -5.49	 Mean_Vloss: 0.00351807
+Episode 255	 Last reward: -14.79	 Mean_Vloss: 0.00037151
+Episode 256	 Last reward: -25.25	 Mean_Vloss: 0.00083302
+Episode 257	 Last reward: 10.91	 Mean_Vloss: 0.00153475
+Episode 258	 Last reward: 24.57	 Mean_Vloss: 0.00478389
+Episode 259	 Last reward: -8.39	 Mean_Vloss: 0.00256784
+Episode 260	 Last reward: 22.74	 Mean_Vloss: 0.01383151
+Episode 261	 Last reward: 23.91	 Mean_Vloss: 0.01631523
+Episode 262	 Last reward: -6.78	 Mean_Vloss: 0.00273391

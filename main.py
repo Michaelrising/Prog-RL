@@ -259,7 +259,7 @@ def greedy(steps,max_steps, eps):
     # mask = bool(reward_array_mask > 2 and (self.steps > self.eval_reward.maxlen * self.eval_interval))
     # the probability of explore goes from 0.5 to 0.01 from step starts to num_steps/2 steps and keep in 0.1 after that
     lowest_eps = 0.1
-    epsilon = eps - (eps - lowest_eps) * steps/ (max_steps * 0.1)
+    epsilon = eps - (eps - lowest_eps) * steps/ (max_steps * 0.05)
     epsilon = epsilon if epsilon >= lowest_eps else lowest_eps
     decision = bernoulli.rvs(1 - epsilon, size=1).item()
     return decision
@@ -297,8 +297,8 @@ def main(summary_dir):
     record = -100000
     for i_update in range(configs.max_updates):
         # utilize swa parameters to generate training data
-        ppo.Swap_swa_sgd(i_update);
-        action_choice = greedy(i_update,configs.max_updates,  0.5)
+        # ppo.Swap_swa_sgd(i_update);
+        action_choice = 0# greedy(i_update,configs.max_updates,  0.3)
         ep_rewards = [0 for _ in range(configs.num_envs)]
         for i, env in enumerate(envs):
             def ACT(pi, candidate, action_choice, memory):
@@ -326,7 +326,7 @@ def main(summary_dir):
                 memory_append(memories[i], device, adj, fea, candidate, mask, action, reward, done)
                 if env.done:
                     break
-        ppo.Swap_swa_sgd(i_update);
+        # ppo.Swap_swa_sgd(i_update);
         loss, v_loss = ppo.update(memories, envs[0].action_space.n, configs.graph_pool_type)
         for memory in memories:
             memory.clear_memory()
@@ -338,10 +338,10 @@ def main(summary_dir):
         print('Episode {}\t Last reward: {:.2f}\t Mean_Vloss: {:.8f}'.format(
             i_update, mean_rewards_all_env, v_loss))
 
-        if i_update % 99 == 0:
-            ppo.Swap_swa_sgd(i_update);
+        if i_update % 49 == 0:
+            # ppo.Swap_swa_sgd(i_update);
             rewards, actions, times = validate(ppo.policy)
-            ppo.Swap_swa_sgd(i_update);
+            # ppo.Swap_swa_sgd(i_update);
             if rewards > record:
                 torch.save(ppo.policy.state_dict(), summary_dir + '/{}.pth'.format("PPO-ProgramEnv-"+"seed-" + str(configs.np_seed_train)))
                 record = rewards
@@ -353,7 +353,7 @@ def main(summary_dir):
 
 if __name__ == '__main__':
     t = datetime.now().strftime("%Y%m%d-%H%M")
-    summary_dir = os.path.join("log", 'summary', str(t))
+    summary_dir = os.path.join("log", 'summary', str(t) + "-kepoch-" + str(configs.k_epochs) + "-gamma-" + str(configs.gamma))
     if not os.path.exists(summary_dir):
         os.makedirs(summary_dir)
     total1 = time.time()
