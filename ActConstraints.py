@@ -224,7 +224,7 @@ class Constraints(ReadInfo):
         # 判断给定的模式向量及各个模式开始时间是否满足可更新资源限制
         # give sequence of mode and activity, determine whether satisfy the renewable resource constraints
         assert len(timeSeq) + 1 == len(modeSeq) == len(actSeq)
-        if (crtTime <= np.array(timeSeq)).any():
+        if (crtTime < np.array(timeSeq)).any():
             return False
         pastModeSeq = np.array(modeSeq[:-1], dtype = np.int)
         pastActSeq = np.array(actSeq[:-1], dtype = np.int)

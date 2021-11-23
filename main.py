@@ -100,7 +100,7 @@ class PPO:
             return True
         return False
 
-    def update(self, memories, n_tasks, g_pool):
+    def update(self, memories, n_tasks, g_pool, n_activities):
 
         vloss_coef = configs.vloss_coef
         ploss_coef = configs.ploss_coef
@@ -303,9 +303,9 @@ def main(summary_dir):
         for i, env in enumerate(envs):
             def ACT(pi, candidate, action_choice, memory):
                 if action_choice:
-                    return greedy_select_action(pi, candidate, memory)
+                    return greedy_select_action(pi, candidate,  memory)
                 else:
-                    return select_action(pi, candidate, memory)
+                    return select_action(pi, candidate,  memory)
             adj, fea, candidate, mask = env.reset()
             ep_rewards[i] = 0
             while True:
@@ -327,7 +327,7 @@ def main(summary_dir):
                 if env.done:
                     break
         # ppo.Swap_swa_sgd(i_update);
-        loss, v_loss = ppo.update(memories, envs[0].action_space.n, configs.graph_pool_type)
+        loss, v_loss = ppo.update(memories, envs[0].action_space.n, configs.graph_pool_type, len(envs[0].activities))
         for memory in memories:
             memory.clear_memory()
         mean_rewards_all_env = sum(ep_rewards) / len(ep_rewards)

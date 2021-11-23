@@ -42,8 +42,7 @@ class ActorCritic(nn.Module):
                 padded_nei,
                 adj,
                 candidate,
-                mask,
-                ):
+                mask):
 
         h_pooled, h_nodes = self.feature_extract(x=x,
                                                  graph_pool=graph_pool,

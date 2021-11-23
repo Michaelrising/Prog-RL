@@ -100,7 +100,7 @@ class ProgEnv(Constraints, ReadInfo):
             latestTime = np.array(self.timeSeq) - OutDegree
             earliestTime = np.array(self.timeSeq) + InDegree
             if int(earliestTime.max()) <= int(latestTime.min()):
-                greedy_startTime = int(earliestTime.max()) + 1 if earliestTime.max() > - 1000 else self.crtTime + 1 # greedy choice of start time
+                greedy_startTime = int(earliestTime.max()) if earliestTime.max() > - 1000 else self.crtTime # greedy choice of start time
                 end_startTime = max(latestTime.min(), greedy_startTime)
                 return greedy_startTime, end_startTime
             else:
@@ -122,7 +122,7 @@ class ProgEnv(Constraints, ReadInfo):
         return feasibleMask
 
     def step(self, action):
-        startTime = self.crtTime + 1
+        startTime = self.crtTime
         potential0 = self.potential()
         self.actionSeq.append(action)
         self.crtAct, self.crtMode = self.actionDetermine(action)
@@ -143,7 +143,7 @@ class ProgEnv(Constraints, ReadInfo):
                         startTime = t # greedy choice
                         break
                     if t == latest_startTime and not self.Is_Renewable_Resource_Feasible(self.modeSeq, self.actSeq, self.timeSeq, t):
-                        startTime = max(latest_startTime, self.crtTime + 1)
+                        startTime = max(latest_startTime, self.crtTime)
                         self.done = True
             else:
                 startTime = max(greedy_startTime, startTime)
@@ -180,9 +180,11 @@ class ProgEnv(Constraints, ReadInfo):
         self.steps += 1
         feasibleMask = self.feasibleAction()
         mask = feasibleMask + self.pastMask
+        if mask.all():
+            mask = np.full(shape=self.action_space.n, fill_value=0, dtype=bool)
         self.timeStatus[action] = self.crtTime
         self.timeStatus[mask_limit] = -1
-        self.lastTime  = self.crtTime
+        self.lastTime = self.crtTime
         fea = np.concatenate((self.actStatus, self.timeStatus)).reshape(-1,2)
         return self.stateGraph, fea, reward, self.done, self.candidate, mask, self.crtTime
 
