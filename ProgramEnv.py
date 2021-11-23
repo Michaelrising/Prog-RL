@@ -13,7 +13,7 @@ class ProgEnv(Constraints, ReadInfo):
     def __init__(self, filename):
         super().__init__(filename)
         self.steps = 0
-        self.action_num = sum(self.Activity_mode_Num)
+        self.action_num = sum(self.Activity_mode_Num) + 1
         self.action_space = spaces.Discrete(self.action_num)
         self.price_renewable_resource = .1 * np.ones_like(self.Renewable_resource)
         self.price_nonrenewable_resource = .2 * np.ones_like(self.Nonrenewable_resource)
@@ -26,6 +26,7 @@ class ProgEnv(Constraints, ReadInfo):
         self.done = False
         self.stateGraph = np.zeros((self.action_space.n, self.action_space.n))# np.ones((self.action_space.n, self.action_space.n)) * (-np.inf) # non-direction graph
         self.actStatus = np.zeros(self.action_space.n)
+        self.actStatus[-1] = -1
         self.timeStatus = np.zeros(self.action_space.n)
         self.candidate = np.arange(self.action_space.n)
         self.pastMask = np.full(shape=self.action_space.n, fill_value=0, dtype=bool)
@@ -55,6 +56,12 @@ class ProgEnv(Constraints, ReadInfo):
                         pcol = sum(self.Activity_mode_Num[:(int(activity))]) + mode_act - 1
                         prow = sum(self.Activity_mode_Num[:(int(key))]) + mode_key - 1
                         self.stateGraph[prow, pcol] = temp[key][mode_act-1, mode_key-1] if abs(temp[key][mode_act-1, mode_key-1]) else 1e-8 # if 0 then we set it as 1e-8
+        # EOF activity
+        last_activity = self.activities[-1]
+        eof_action = int(self.action_space.n - 1)
+        for mode in np.arange(1, self.Activity_mode_Num[int(last_activity)] + 1):
+            pcol = sum(self.Activity_mode_Num[:(int(last_activity))]) + mode - 1
+            self.stateGraph[eof_action, pcol] = 1
 
     def BuildStateGraph(self, action):
         # after one action is taken, the explicit activity and corresponding mode are determined,
@@ -66,6 +73,7 @@ class ProgEnv(Constraints, ReadInfo):
             if act_col != action:
                 self.stateGraph[:, act_col] = 0 # - np.inf #### set as -M ####
                 self.stateGraph[act_col] = 0 # - np.inf
+
         return action_limit
 
     def updateActStatus(self, action, action_limit):
@@ -150,7 +158,7 @@ class ProgEnv(Constraints, ReadInfo):
         else:
             RenewFeasible = False
             self.done = True
-        self.crtTime = startTime
+        self.crtTime = int(startTime)
         self.timeSeq.append(self.crtTime)
         self.updateActStatus(action, mask_limit)
 
@@ -180,8 +188,10 @@ class ProgEnv(Constraints, ReadInfo):
         self.steps += 1
         feasibleMask = self.feasibleAction()
         mask = feasibleMask + self.pastMask
-        if mask.all():
-            mask = np.full(shape=self.action_space.n, fill_value=0, dtype=bool)
+        # if mask.all():
+        #     mask = np.full(shape=self.action_space.n, fill_value=0, dtype=bool)
+        #     # mask[0] = False
+        #     # mask[-1] = False
         self.timeStatus[action] = self.crtTime
         self.timeStatus[mask_limit] = -1
         self.lastTime = self.crtTime
@@ -200,6 +210,7 @@ class ProgEnv(Constraints, ReadInfo):
         self.done = False
         self.stateGraph = np.zeros((self.action_space.n, self.action_space.n)) #np.ones((self.action_space.n, self.action_space.n)) * (-np.inf)  # non-direction graph
         self.actStatus = np.zeros(self.action_space.n)
+        self.actStatus[-1] = -1
         self.timeStatus = np.zeros(self.action_space.n)
         self.resetStateGraph()
         self.pastMask = np.full(shape=self.action_space.n, fill_value=0, dtype=bool)
