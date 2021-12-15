@@ -2,7 +2,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Arguments for ppo_jssp')
 # args for device
-parser.add_argument('--device', type=str, default="cpu", help='Number of jobs of instances')
+parser.add_argument('--device', type=str, default="cpu")
 # args for env
 parser.add_argument('--filepath', type=str, default=r'./test.sch', help='file path for the rules')
 parser.add_argument('--np_seed_train', type=int, default=199, help='Seed for numpy for training')
@@ -29,7 +29,7 @@ parser.add_argument('--decayflag', type=bool, default=True, help='lr decayflag')
 parser.add_argument('--decay_step_size', type=int, default=1000, help='decay_step_size')
 parser.add_argument('--decay_ratio', type=float, default=0.5, help='decay_ratio, e.g. 0.9, 0.95')
 parser.add_argument('--gamma', type=float, default=0.98, help='discount factor')
-parser.add_argument('--k_epochs', type=int, default=30, help='update policy for K epochs')
+parser.add_argument('--k_epochs', type=int, default=4, help='update policy for K epochs')
 parser.add_argument('--eps_clip', type=float, default=0.2, help='clip parameter for PPO')
 parser.add_argument('--vloss_coef', type=float, default=1, help='critic loss coefficient')
 parser.add_argument('--ploss_coef', type=float, default=0.5, help='policy loss coefficient')

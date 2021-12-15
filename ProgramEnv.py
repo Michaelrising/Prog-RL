@@ -15,8 +15,8 @@ class ProgEnv(Constraints, ReadInfo):
         self.steps = 0
         self.action_num = sum(self.Activity_mode_Num) + 1
         self.action_space = spaces.Discrete(self.action_num)
-        self.price_renewable_resource = .1 * np.ones_like(self.Renewable_resource)
-        self.price_nonrenewable_resource = .2 * np.ones_like(self.Nonrenewable_resource)
+        self.price_renewable_resource = 1 * np.ones_like(self.Renewable_resource)
+        self.price_nonrenewable_resource = 2 * np.ones_like(self.Nonrenewable_resource)
         self.actSeq = []
         self.modeSeq = []
         self.timeSeq = []
@@ -30,9 +30,10 @@ class ProgEnv(Constraints, ReadInfo):
         self.timeStatus = np.zeros(self.action_space.n)
         self.candidate = np.arange(self.action_space.n)
         self.pastMask = np.full(shape=self.action_space.n, fill_value=0, dtype=bool)
-        self.penalty_coeff0 = 5
-        self.penalty_coeff1 = 2
+        self.penalty_coeff0 = 2
+        self.penalty_coeff1 = 1
         self.lastTime = 0
+        self.T_target = 18
         # self.actionPairs = []
 
     def actionDetermine(self, action):
@@ -170,20 +171,32 @@ class ProgEnv(Constraints, ReadInfo):
         # assign reward
         # feasible reward
         f_reward = actionFeasible * 2 + nonRenewFeasible * 1 + RenewFeasible * 1
-        reward = f_reward
+        reward = f_reward * (self.steps + 1)
         potential1 = self.potential()
         renewR = self.get_current_mode_using_renewable_resource(self.crtMode, self.crtAct)
+        least_renewR = self.get_current_act_using_least_renewable_resource(self.crtAct)
+        diff_renewR = renewR - least_renewR
         NonrenewR = self.get_current_mode_using_nonrenewable_resource(self.crtMode, self.crtAct)
+        least_NonrenewR = self.get_current_act_using_least_nonrenewable_resource(self.crtAct)
+        diff_NonrenewR = NonrenewR - least_NonrenewR
         if bool(not self.done) or (self.actStatus != 0).all(): # not done or all activities are finished
             # penalty for resource used
-            renew_Penalty = np.dot(renewR, self.price_renewable_resource.reshape(-1))
-            nonrenew_Penalty = np.dot(NonrenewR, self.price_nonrenewable_resource.reshape(-1))
-            time_penalty = (self.crtTime - self.lastTime)*1
-            reward += potential1 - potential0 - time_penalty - renew_Penalty - nonrenew_Penalty
-        elif not actionFeasible:
-            reward += - self.penalty_coeff0 * len(self.actStatus[self.actStatus == 0])
-        else:
-            reward += - self.penalty_coeff1 * len(self.actStatus[self.actStatus == 0])
+            renew_Penalty = np.dot(diff_renewR, self.price_renewable_resource.reshape(-1)) # renew penalty cost1
+            nonrenew_Penalty = np.dot(diff_NonrenewR, self.price_nonrenewable_resource.reshape(-1)) # nonrenew penalty cost2
+            # time penalty
+            time_penalty = self.crtTime
+            # the time lag penalty compared to the best mode
+            crt_duration = self.get_current_duration(self.crtMode, self.crtAct)
+            best_duration = self.get_current_least_duration(self.crtAct)
+            diff_duration = crt_duration - best_duration # duration diff: cost3
+            reward += potential1 - potential0 - 2 * diff_duration - renew_Penalty - nonrenew_Penalty - time_penalty
+            if (self.actStatus != 0).all():
+                diff_T = self.T_target - T # cost0
+                reward += 10**diff_T
+        # elif not actionFeasible:
+        #     reward += - self.penalty_coeff0 * len(self.actStatus[self.actStatus == 0])
+        # else:
+        #     reward += - self.penalty_coeff1 * len(self.actStatus[self.actStatus == 0])
 
         self.steps += 1
         feasibleMask = self.feasibleAction()

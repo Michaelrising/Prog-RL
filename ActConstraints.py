@@ -184,18 +184,45 @@ class Constraints(ReadInfo):
         duration = self.Resources[key]['duration']
         return duration
 
+    def get_current_least_duration(self, currentAct):
+        temptime = 10000
+        for j in range(self.Activity_mode_Num[currentAct]):
+            key = self.activities[currentAct] + '-' + str(j + 1)
+            d = self.Resources[key]['duration']
+            if d < temptime:
+                temptime = d
+        return temptime
+
     # 返回特定模式下消耗的可更新资源矩阵,输入current mode and activity output the resource used
     def get_current_mode_using_renewable_resource(self, currentMode, currentAct):
         # give current mode and current act give the resource used for this activity
         key = str(currentAct) + '-' + str(currentMode)
         mode_using_renewable_resource = self.Resources[key]['using_renewable_resource']
-        return mode_using_renewable_resource
+        return np.array(mode_using_renewable_resource)
+
+    def get_current_act_using_least_renewable_resource(self, currentAct):
+        temp = np.ones(2) * 10000
+        for j in range(self.Activity_mode_Num[currentAct]):
+            key = self.activities[currentAct] + '-' + str(j + 1)
+            mode_using_renewable_resource = self.Resources[key]['using_renewable_resource']
+            if (temp > np.array(mode_using_renewable_resource)).all():
+                temp = np.array(mode_using_renewable_resource)
+        return temp
 
     # 返回特定模式下消耗的不可更新资源矩阵,输入current mode and activity output the resource used
     def get_current_mode_using_nonrenewable_resource(self, currentMode, currentAct):
         key = str(currentAct) + '-' + str(currentMode)
         mode_using_nonrenewable_resource = self.Resources[key]['using_nonrenewable_resource']
-        return mode_using_nonrenewable_resource
+        return np.array(mode_using_nonrenewable_resource)
+
+    def get_current_act_using_least_nonrenewable_resource(self, currentAct):
+        temp = np.ones(2) * 10000
+        for j in range(self.Activity_mode_Num[currentAct]):
+            key = self.activities[currentAct] + '-' + str(j + 1)
+            mode_using_nonrenewable_resource = self.Resources[key]['using_nonrenewable_resource']
+            if (temp > np.array(mode_using_nonrenewable_resource)).all():
+                temp = np.array(mode_using_nonrenewable_resource)
+        return temp
 
     # def Is_Renewable_Resource_Feasible(self,modesequece , start_timesequence, T):
     #     # 判断给定的模式向量及各个模式开始时间是否满足可更新资源限制
