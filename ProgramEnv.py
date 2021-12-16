@@ -15,8 +15,8 @@ class ProgEnv(Constraints, ReadInfo):
         self.steps = 0
         self.action_num = sum(self.Activity_mode_Num) + 1
         self.action_space = spaces.Discrete(self.action_num)
-        self.price_renewable_resource = 1 * np.ones_like(self.Renewable_resource)
-        self.price_nonrenewable_resource = 2 * np.ones_like(self.Nonrenewable_resource)
+        self.price_renewable_resource = 5 * np.ones_like(self.Renewable_resource)
+        self.price_nonrenewable_resource = 0.5 * np.ones_like(self.Nonrenewable_resource)
         self.actSeq = []
         self.modeSeq = []
         self.timeSeq = []
@@ -30,10 +30,10 @@ class ProgEnv(Constraints, ReadInfo):
         self.timeStatus = np.zeros(self.action_space.n)
         self.candidate = np.arange(self.action_space.n)
         self.pastMask = np.full(shape=self.action_space.n, fill_value=0, dtype=bool)
-        self.penalty_coeff0 = 2
-        self.penalty_coeff1 = 1
+        self.penalty_coeff0 = 10
+        self.penalty_coeff1 = 5
         self.lastTime = 0
-        self.T_target = 18
+        self.T_target = 16
         # self.actionPairs = []
 
     def actionDetermine(self, action):
@@ -189,10 +189,13 @@ class ProgEnv(Constraints, ReadInfo):
             crt_duration = self.get_current_duration(self.crtMode, self.crtAct)
             best_duration = self.get_current_least_duration(self.crtAct)
             diff_duration = crt_duration - best_duration # duration diff: cost3
-            reward += potential1 - potential0 - 2 * diff_duration - renew_Penalty - nonrenew_Penalty - time_penalty
+            reward += potential1 - potential0 - diff_duration - renew_Penalty - nonrenew_Penalty #- time_penalty
             if (self.actStatus != 0).all():
                 diff_T = self.T_target - T # cost0
-                reward += 10**diff_T
+                if diff_T >= 0:
+                    reward += self.penalty_coeff0 * diff_T
+                else:
+                    reward += self.penalty_coeff1 * diff_T
         # elif not actionFeasible:
         #     reward += - self.penalty_coeff0 * len(self.actStatus[self.actStatus == 0])
         # else:
