@@ -11,9 +11,9 @@ from datetime import datetime
 device = torch.device(configs.device)
 
 
-def main(summary_dir):
+def main(summary_dir, pars):
     writer = SummaryWriter(log_dir=summary_dir)
-    envs = [ProgEnv(filename=configs.filepath) for _ in range(configs.num_envs)]
+    envs = [ProgEnv(*pars) for _ in range(configs.num_envs)]
     torch.manual_seed(configs.torch_seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(configs.torch_seed)
@@ -103,11 +103,14 @@ def main(summary_dir):
             writer.add_scalar("Reward/Test", rewards, i_update)
 
 
+
 if __name__ == '__main__':
     t = datetime.now().strftime("%Y%m%d-%H%M")
-    summary_dir = os.path.join("log", 'summary', str(t) + "-kepoch-" + str(configs.k_epochs) + "-gamma-" + str(configs.gamma))
+    summary_dir = os.path.join("log", 'summary', str(t))
     if not os.path.exists(summary_dir):
         os.makedirs(summary_dir)
     total1 = time.time()
-    main(summary_dir)
+    pars = (
+    configs.filepath, configs.Target_T, configs.price_renew, configs.price_non, configs.penalty0, configs.penalty1)
+    main(summary_dir, pars)
     total2 = time.time()

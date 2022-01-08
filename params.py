@@ -4,7 +4,15 @@ parser = argparse.ArgumentParser(description='Arguments for ppo_jssp')
 # args for device
 parser.add_argument('--device', type=str, default="cpu")
 # args for env
+# Remenber if you wanna change the value of this setting, make sure you hv prior knowledge of the program
 parser.add_argument('--filepath', type=str, default=r'./test.sch', help='file path for the rules')
+parser.add_argument('--Target_T', type=int, default=16, help='Set the target total time of project')
+parser.add_argument('--price_renew', type=float, default=5., help='Set the price per unit of renewable resource')
+parser.add_argument('--price_non', type=float, default=0.5, help='Set the price per unit for nonrenewable resource')
+parser.add_argument('--penalty0', type=float, default=10, help='Penalty coefficient0 for exceeding target T')
+parser.add_argument('--penalty1', type=float, default=5, help='Penalty coefficient1 for exceeding target T')
+
+
 parser.add_argument('--np_seed_train', type=int, default=199, help='Seed for numpy for training')
 parser.add_argument('--np_seed_validation', type=int, default=199, help='Seed for numpy for validation')
 parser.add_argument('--torch_seed', type=int, default=599, help='Seed for torch')

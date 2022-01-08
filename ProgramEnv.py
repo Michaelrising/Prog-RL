@@ -10,13 +10,13 @@ from tool import permissibleLeftShift
 
 
 class ProgEnv(Constraints, ReadInfo):
-    def __init__(self, filename):
-        super().__init__(filename)
+    def __init__(self, filepath, T_target=16, price_renew=5, price_non=0.5, penalty0=10, penalty1=5):
+        super().__init__(filepath)
         self.steps = 0
         self.action_num = sum(self.Activity_mode_Num) + 1
         self.action_space = spaces.Discrete(self.action_num)
-        self.price_renewable_resource = 5 * np.ones_like(self.Renewable_resource)
-        self.price_nonrenewable_resource = 0.5 * np.ones_like(self.Nonrenewable_resource)
+        self.price_renewable_resource = price_renew * np.ones_like(self.Renewable_resource)
+        self.price_nonrenewable_resource = price_non * np.ones_like(self.Nonrenewable_resource)
         self.actSeq = []
         self.modeSeq = []
         self.timeSeq = []
@@ -30,10 +30,10 @@ class ProgEnv(Constraints, ReadInfo):
         self.timeStatus = np.zeros(self.action_space.n)
         self.candidate = np.arange(self.action_space.n)
         self.pastMask = np.full(shape=self.action_space.n, fill_value=0, dtype=bool)
-        self.penalty_coeff0 = 10
-        self.penalty_coeff1 = 5
+        self.penalty_coeff0 = penalty0
+        self.penalty_coeff1 = penalty1
         self.lastTime = 0
-        self.T_target = 16
+        self.T_target = T_target
         # self.actionPairs = []
 
     def actionDetermine(self, action):
