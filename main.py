@@ -91,12 +91,14 @@ def main(summary_dir, pars):
             rewards, actions, times = validate(ppo.policy)
             # ppo.Swap_swa_sgd(i_update);
             if rewards > record:
-                torch.save(ppo.policy.state_dict(), summary_dir + '/{}.pth'.format("PPO-ProgramEnv-"+"largest_reward-"+ str(np.round(rewards, 1))+"-seed-" + str(configs.np_seed_train)))
+                torch.save(ppo.policy.state_dict(), summary_dir + '/{}.pth'.format("PPO-ProgramEnv-"+"best_reward-"+"seed-" + str(configs.np_seed_train)))
                 record = rewards
+                print(rewards)
             if record_time > times[-1] and len(actions) >= num_activities:
                 record_time = times[-1]
+                print(record_time)
                 torch.save(ppo.policy.state_dict(),
-                           summary_dir + '/{}.pth'.format("PPO-ProgramEnv-" + "least_time-" + str(record_time)+"-seed-" + str(configs.np_seed_train)))
+                           summary_dir + '/{}.pth'.format("PPO-ProgramEnv-" + "best_time-" +"seed-" + str(configs.np_seed_train)))
 
             print('The validation quality is:', rewards)
             print("The action sequence is:", actions)
