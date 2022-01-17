@@ -59,15 +59,15 @@ def test(modelPath, pars):
     mode_Number = env.Activity_mode_Num
     cum_sum = np.cumsum(mode_Number) - 1
     for act in actions:
-        activity = np.where(cum_sum <= act)[0][-1].item()
-        mode = act - activity + 1
+        activity = np.where(cum_sum >= act)[0][0].item()
+        mode = cum_sum[int(activity)] - act + 1
         ActSeq.append(activity)
         ModeSeq.append(mode)
     return rewards, ActSeq, ModeSeq, TimeSeq
 
 
 if __name__ == '__main__':
-    modelpath = './log/summary/20211208-1710-kepoch-30-gamma-0.98/PPO-ProgramEnv-seed-199.pth'
+    modelpath = './log/summary/20211118-1709/PPO-ProgramEnv-seed-200.pth'
     pars = (
         configs.filepath, configs.Target_T, configs.price_renew, configs.price_non, configs.penalty0, configs.penalty1)
     rewards, ActSeq, ModeSeq, TimeSeq = test(modelpath, pars)

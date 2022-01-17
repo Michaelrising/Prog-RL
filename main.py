@@ -14,6 +14,7 @@ device = torch.device(configs.device)
 def main(summary_dir, pars):
     writer = SummaryWriter(log_dir=summary_dir)
     envs = [ProgEnv(*pars) for _ in range(configs.num_envs)]
+    num_activities=len(envs[0].activities)
     torch.manual_seed(configs.torch_seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(configs.torch_seed)
@@ -92,7 +93,7 @@ def main(summary_dir, pars):
             if rewards > record:
                 torch.save(ppo.policy.state_dict(), summary_dir + '/{}.pth'.format("PPO-ProgramEnv-"+"largest_reward-"+ str(np.round(rewards, 1))+"-seed-" + str(configs.np_seed_train)))
                 record = rewards
-            if record_time > times[-1]:
+            if record_time > times[-1] and len(actions) >= num_activities:
                 record_time = times[-1]
                 torch.save(ppo.policy.state_dict(),
                            summary_dir + '/{}.pth'.format("PPO-ProgramEnv-" + "least_time-" + str(record_time)+"-seed-" + str(configs.np_seed_train)))

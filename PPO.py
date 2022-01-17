@@ -207,7 +207,7 @@ def g_pool_cal(graph_pool_type, batch_size, n_nodes, device):
 
 
 def validate(model):
-    env = ProgEnv(filename=configs.filepath)
+    env = ProgEnv(filepath=configs.filepath)
     device = torch.device(configs.device)
     g_pool_step = g_pool_cal(graph_pool_type=configs.graph_pool_type,
                              batch_size=torch.Size([1, env.action_space.n, env.action_space.n]),
