@@ -32,10 +32,10 @@ parser.add_argument('--hidden_dim_critic', type=int, default=32, help='hidden di
 # args for PPO
 parser.add_argument('--num_envs', type=int, default=4, help='No. of envs for training') # original is 4
 parser.add_argument('--max_updates', type=int, default=100000, help='No. of episodes of each env for training')
-parser.add_argument('--lr', type=float, default=2e-5, help='lr')
+parser.add_argument('--lr', type=float, default=1e-4, help='lr')
 parser.add_argument('--decayflag', type=bool, default=True, help='lr decayflag')
-parser.add_argument('--decay_step_size', type=int, default=1000, help='decay_step_size')
-parser.add_argument('--decay_ratio', type=float, default=0.5, help='decay_ratio, e.g. 0.9, 0.95')
+parser.add_argument('--decay_step_size', type=int, default=500, help='decay_step_size')
+parser.add_argument('--decay_ratio', type=float, default=0.8, help='decay_ratio, e.g. 0.9, 0.95')
 parser.add_argument('--gamma', type=float, default=0.98, help='discount factor')
 parser.add_argument('--k_epochs', type=int, default=4, help='update policy for K epochs')
 parser.add_argument('--eps_clip', type=float, default=0.2, help='clip parameter for PPO')

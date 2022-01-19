@@ -82,18 +82,19 @@ class ProgEnv(Constraints, ReadInfo):
         # update the activity status, for the done activity set to 1,
         # for the on-progress activity, set as (ctrTime - startTime)/duration
 
-        duration = self.get_current_duration(self.crtMode, self.crtAct)
-        if not self.done:
-            self.actStatus[action] = 1. / duration if duration > 0 else 1  # activity starts then the status changes to 1/duration from 0
-        else:
-            self.actStatus[action] = 0
-        _, endTimeSeq, durationSeq = self.getProjectTime(self.timeSeq[:-1], self.modeSeq[:-1], self.actSeq[:-1])
-        pastAction = np.array(self.actSeq[:-1], dtype=np.int)
-        pastTime =  np.array(self.timeSeq[:-1])
-        finishActMask = pastAction[endTimeSeq <= self.crtTime]
-        progressActMask = pastAction[endTimeSeq > self.crtTime] #actMask[]
-        self.actStatus[finishActMask] = 1  # when activity done, then the status changes to 1
-        self.actStatus[progressActMask] = (self.crtTime - pastTime[endTimeSeq > self.crtTime]) / durationSeq[endTimeSeq > self.crtTime]
+        # duration = self.get_current_duration(self.crtMode, self.crtAct)
+        # if not self.done:
+        #     self.actStatus[action] = 1. / duration if duration > 0 else 1  # activity starts then the status changes to 1/duration from 0
+        # else:
+        #     self.actStatus[action] = 0
+        # _, endTimeSeq, durationSeq = self.getProjectTime(self.timeSeq[:-1], self.modeSeq[:-1], self.actSeq[:-1])
+        # pastAction = np.array(self.actSeq[:-1], dtype=np.int)
+        # pastTime =  np.array(self.timeSeq[:-1])
+        # finishActMask = pastAction[endTimeSeq <= self.crtTime]
+        # progressActMask = pastAction[endTimeSeq > self.crtTime] #actMask[]
+        # self.actStatus[finishActMask] = 1  # when activity done, then the status changes to 1
+        # self.actStatus[progressActMask] = (self.crtTime - pastTime[endTimeSeq > self.crtTime]) / durationSeq[endTimeSeq > self.crtTime]
+        self.actStatus[action] = 1
         for act in action_limit:
             if act != action:
                 self.actStatus[act] = -1
@@ -142,27 +143,27 @@ class ProgEnv(Constraints, ReadInfo):
         PastActGraph = self.stateGraph[self.actionSeq][:, self.actionSeq]
         actionFeasible = self.JudgeFeasibility(PastActGraph, self.crtAct, self.crtMode)
         nonRenewFeasible = self.Is_NonRenewable_Resource_Feasible(self.crtMode, self.crtAct)
-        if actionFeasible and nonRenewFeasible:
-            greedy_startTime, latest_startTime = self.startTimeDetermine(PastActGraph)
-            #
-            RenewFeasible = self.Is_Renewable_Resource_Feasible(self.modeSeq, self.actSeq, self.timeSeq, greedy_startTime)
-            if not RenewFeasible:
-                for t in np.arange(greedy_startTime + 1, latest_startTime + 1):
-                    if self.Is_Renewable_Resource_Feasible(self.modeSeq, self.actSeq, self.timeSeq, t):
-                        startTime = t # greedy choice
-                        break
-                    if t == latest_startTime and not self.Is_Renewable_Resource_Feasible(self.modeSeq, self.actSeq, self.timeSeq, t):
-                        startTime = max(latest_startTime, self.crtTime)
-                        self.done = True
-            else:
+        ## For renewable resource
+        greedy_startTime, latest_startTime = self.startTimeDetermine(PastActGraph)
+        RenewFeasible = self.Is_Renewable_Resource_Feasible(self.modeSeq, self.actSeq, self.timeSeq, greedy_startTime)
+        if self.crtTime <= latest_startTime:
+            t = greedy_startTime + 1
+            while not RenewFeasible and t <= latest_startTime:
+                RenewFeasible = self.Is_Renewable_Resource_Feasible(self.modeSeq, self.actSeq, self.timeSeq, t)
+                if RenewFeasible:
+                    startTime = max(t, startTime)
+                    break
+                t += 1
+            if RenewFeasible:
                 startTime = max(greedy_startTime, startTime)
+            timeFeasible = True
         else:
-            RenewFeasible = False
-            self.done = True
+            timeFeasible = False
+
         self.crtTime = int(startTime)
         self.timeSeq.append(self.crtTime)
         self.updateActStatus(action, mask_limit)
-
+        self.done = bool(not actionFeasible or not nonRenewFeasible or not RenewFeasible or not timeFeasible)
         # determine whether all the activity are on-progress and finished or not yet
         if len(self.actSeq) == len(self.activities):
             self.done = True
@@ -184,12 +185,12 @@ class ProgEnv(Constraints, ReadInfo):
             renew_Penalty = np.dot(diff_renewR, self.price_renewable_resource.reshape(-1)) # renew penalty cost1
             nonrenew_Penalty = np.dot(diff_NonrenewR, self.price_nonrenewable_resource.reshape(-1)) # nonrenew penalty cost2
             # time penalty
-            time_penalty = self.crtTime
+            time_penalty = 0.5 * self.crtTime
             # the time lag penalty compared to the best mode
             crt_duration = self.get_current_duration(self.crtMode, self.crtAct)
             best_duration = self.get_current_least_duration(self.crtAct)
             diff_duration = crt_duration - best_duration # duration diff: cost3
-            reward += potential1 - potential0 - diff_duration - renew_Penalty - nonrenew_Penalty #- time_penalty
+            reward += potential1 - potential0 - diff_duration - renew_Penalty - nonrenew_Penalty - time_penalty
             if (self.actStatus != 0).all():
                 diff_T = self.T_target - T # cost0
                 if diff_T >= 0:

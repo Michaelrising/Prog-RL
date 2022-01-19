@@ -257,8 +257,8 @@ def greedy(steps,max_steps, eps):
     # eps = 1 / self.eval_reward.maxlen * reward_array_mask
     # mask = bool(reward_array_mask > 2 and (self.steps > self.eval_reward.maxlen * self.eval_interval))
     # the probability of explore goes from 0.5 to 0.01 from step starts to num_steps/2 steps and keep in 0.1 after that
-    lowest_eps = 0.1
-    epsilon = eps - (eps - lowest_eps) * steps/ (max_steps * 0.05)
+    lowest_eps = 0.3
+    epsilon = eps - (eps - lowest_eps) * steps / (max_steps * 0.05)
     epsilon = epsilon if epsilon >= lowest_eps else lowest_eps
     decision = bernoulli.rvs(1 - epsilon, size=1).item()
     return decision

@@ -46,7 +46,7 @@ def main(summary_dir, pars):
     for i_update in range(configs.max_updates):
         # utilize swa parameters to generate training data
         # ppo.Swap_swa_sgd(i_update);
-        action_choice = 0# greedy(i_update,configs.max_updates,  0.3)
+        action_choice = greedy(i_update, configs.max_updates,  0.9)
         ep_rewards = [0 for _ in range(configs.num_envs)]
         for i, env in enumerate(envs):
             def ACT(pi, candidate, action_choice, memory):
@@ -104,8 +104,6 @@ def main(summary_dir, pars):
             print("The action sequence is:", actions)
             print("The start time sequence is:", times)
             writer.add_scalar("Reward/Test", rewards, i_update)
-
-
 
 if __name__ == '__main__':
     t = datetime.now().strftime("%Y%m%d-%H%M")
